@@ -54,12 +54,19 @@
                 v-for="day in days"
                 :key="day.timestamp"
                 track-by="timestamp"
-                v-bind:class="dayClasses(day)"
-                @click="selectDate(day)">{{ day.date }}</span>
+                v-bind:class="Object.assign({}, dayClasses(day), { 
+                  'selected':day.isSelected,
+                  'disabled':day.isDisabled,
+                  'highlighted': day.isHighlighted,
+                  'highlighted2': day.isHighlighted2,
+                  'today': day.isToday,
+                })"
+                @click="selectDate(day)">{{ day.date }}
+                <div class="info">{{day.items}}</div>
+                </span>
           </div>
       </div>
     </template>
-
     <!-- Month View -->
     <template v-if="allowedToShowView('month')">
       <div :class="[calendarClass, 'vdp-datepicker__calendar']" v-show="showMonthView" v-bind:style="calendarStyle">
