@@ -944,8 +944,8 @@ $width = 300px
         display inline-block
         padding 0 5px
         width (100/7)%
-        height 40px
-        line-height 40px
+        height 50px
+        line-height 22px
         text-align center
         vertical-align middle
         border 1px solid transparent
@@ -965,6 +965,13 @@ $width = 300px
             background #cae5ed
             &.disabled
                 color: #a3a3a3
+            &.highlighted2
+                background #b9d4dc
+        &.highlighted2
+            background #ddffdd
+        &.disabled
+            &.highlighted2
+                background #f2fff2
         &.grey
             color #888
 
@@ -978,7 +985,8 @@ $width = 300px
             cursor inherit
             &:hover
                 background inherit
-
+        .info
+            font-size 0.7em
     .month,
     .year
         width 33.333%
