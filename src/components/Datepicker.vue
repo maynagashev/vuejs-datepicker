@@ -255,6 +255,9 @@ export default {
       let dObj = new Date(d.getFullYear(), d.getMonth(), 1, d.getHours(), d.getMinutes())
       let daysInMonth = DateUtils.daysInMonth(dObj.getFullYear(), dObj.getMonth())
       for (let i = 0; i < daysInMonth; i++) {
+        let dateISO = (typeof moment === 'function') ? moment.utc(dObj).format('YYYY-MM-DD') : dObj.toDateString()
+        let items = (typeof pickerData === 'object') ? pickerData.momentsTotalByDate(dateISO) : 0
+        items = (items <= 0) ? '-' : items
         days.push({
           date: dObj.getDate(),
           timestamp: dObj.getTime(),
@@ -267,6 +270,8 @@ export default {
           isWeekend: dObj.getDay() === 0 || dObj.getDay() === 6,
           isSaturday: dObj.getDay() === 6,
           isSunday: dObj.getDay() === 0
+          items:  items,
+          isHighlighted2: (typeof pickerData === 'object') ? pickerData.isDatePurchased(dateISO) : false,
         })
         dObj.setDate(dObj.getDate() + 1)
       }
