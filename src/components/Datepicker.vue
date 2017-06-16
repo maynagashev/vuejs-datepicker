@@ -55,7 +55,7 @@
                 :key="day.timestamp"
                 track-by="timestamp"
                 v-bind:class="Object.assign({}, dayClasses(day), { 
-                  'selected':day.isSelected,
+                  'selected':(selectCurrent && day.isSelected),
                   'disabled':day.isDisabled,
                   'highlighted': day.isHighlighted,
                   'highlighted2': day.isHighlighted2,
@@ -118,6 +118,14 @@ import DateLanguages from '@/utils/DateLanguages.js'
 
 export default {
   props: {
+      purchased: {},
+      total: {
+         type: Object
+      },
+      tick: {},
+      selectCurrent: {
+          type: Boolean
+      },
     value: {
       validator: function (val) {
         return val === null || val instanceof Date || typeof val === 'string' || typeof val === 'number'
@@ -190,7 +198,11 @@ export default {
       /*
        * Positioning
        */
-      calendarHeight: 0
+      calendarHeight: 0,
+      /**
+       * additinal data
+       */
+      pickerData: null
     }
   },
   watch: {
@@ -203,6 +215,16 @@ export default {
     initialView () {
       this.setInitialView()
     }
+
+//      tick (value) {
+//        //alert(value);
+//          var self = this;
+//          setTimeout(function(){
+//              log.warn('$forceUpdate 500');
+//              self.$forceUpdate();
+//          }, 1000);
+//
+//      }
   },
   computed: {
     computedInitialView () {
@@ -257,16 +279,27 @@ export default {
     },
     days () {
       const d = this.pageDate
+      let a = this.tick; // stub var for updating days() when tick updates
       let days = []
       // set up a new date object to the beginning of the current 'page'
       let dObj = new Date(d.getFullYear(), d.getMonth(), 1, d.getHours(), d.getMinutes())
       let daysInMonth = DateUtils.daysInMonth(dObj.getFullYear(), dObj.getMonth())
+        // request additional data load for month
+        if (this.pickerData !== null) {
+           this.pickerData.fetchDataForMonth(d.getFullYear(), d.getMonth());
+        }
       for (let i = 0; i < daysInMonth; i++) {
-        let dateISO = (typeof moment === 'function') ? moment.utc(dObj).format('YYYY-MM-DD') : dObj.toDateString()
-        let items = (typeof pickerData === 'object') ? pickerData.momentsTotalByDate(dateISO) : 0
-        items = (items <= 0) ? '-' : items
+
+        // additional data
+          let dateISO = moment(dObj).format('YYYY-MM-DD')
+          let isHighlighted2 = (this.pickerData !== null) ? this.pickerData.fetchPurchasedForDate(dateISO) : false
+                  //this.purchased.hasOwnProperty(dateISO) ? this.purchased[dateISO] : false
+          let items = this.total.hasOwnProperty(dateISO) ? this.total[dateISO] : '-'
+          //items = (items <= 0) ? '-' : items
+
         days.push({
           date: dObj.getDate(),
+          dateISO: dateISO,
           timestamp: dObj.getTime(),
           isSelected: this.isSelectedDate(dObj),
           isDisabled: this.isDisabledDate(dObj),
@@ -278,7 +311,7 @@ export default {
           isSaturday: dObj.getDay() === 6,
           isSunday: dObj.getDay() === 0
           items:  items,
-          isHighlighted2: (typeof pickerData === 'object') ? pickerData.isDatePurchased(dateISO) : false,
+          isHighlighted2: isHighlighted2,
         })
         dObj.setDate(dObj.getDate() + 1)
       }
@@ -461,6 +494,7 @@ export default {
       if (this.allowedToShowView('day')) {
         this.setPageDate(date)
         this.$emit('changedMonth', month)
+        this.$emit('changedmonth', date)
         this.showDayCalendar()
       } else {
         this.setDate(date)
@@ -520,6 +554,11 @@ export default {
       date.setMonth(date.getMonth() + incrementBy)
       this.setPageDate(date)
       this.$emit('changedMonth', date)
+      // extra
+      let d = new Date(this.currDate)
+      d.setMonth(d.getMonth() - 1)
+      this.currDate = d.getTime()
+      this.$emit('changedmonth', d)
     },
     previousMonth () {
       if (!this.previousMonthDisabled()) {
@@ -538,6 +577,12 @@ export default {
       if (!this.nextMonthDisabled()) {
         this.changeMonth(+1)
       }
+      //extra
+      let d = new Date(this.currDate)
+      let daysInMonth = DateUtils.daysInMonth(d.getFullYear(), d.getMonth())
+      d.setDate(d.getDate() + daysInMonth)
+      this.currDate = d.getTime()
+      this.$emit('changedmonth', d)
     },
     nextMonthDisabled () {
       if (!this.disabled || !this.disabled.from) {
@@ -857,6 +902,9 @@ export default {
       }
     },
     init () {
+      this.pickerData = window.pickerData;
+      var self =this;
+
       if (this.value) {
         this.setValue(this.value)
       }
@@ -961,6 +1009,8 @@ $width = 300px
                 background #4bd
             &.highlighted
                 background #4bd
+            .info
+                color white
         &.highlighted
             background #cae5ed
             &.disabled
@@ -972,6 +1022,8 @@ $width = 300px
         &.disabled
             &.highlighted2
                 background #f2fff2
+            .info
+                color #ddd
         &.grey
             color #888
 
@@ -987,6 +1039,7 @@ $width = 300px
                 background inherit
         .info
             font-size 0.7em
+            color #777
     .month,
     .year
         width 33.333%
