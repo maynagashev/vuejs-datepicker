@@ -118,7 +118,6 @@ import DateLanguages from '@/utils/DateLanguages.js'
 
 export default {
   props: {
-      purchased: {},
       total: {
          type: Object
       },
@@ -293,7 +292,6 @@ export default {
         // additional data
           let dateISO = moment(dObj).format('YYYY-MM-DD')
           let isHighlighted2 = (this.pickerData !== null) ? this.pickerData.fetchPurchasedForDate(dateISO) : false
-                  //this.purchased.hasOwnProperty(dateISO) ? this.purchased[dateISO] : false
           let items = this.total.hasOwnProperty(dateISO) ? this.total[dateISO] : '-'
           //items = (items <= 0) ? '-' : items
 
