@@ -119,11 +119,15 @@ import DateLanguages from '@/utils/DateLanguages.js'
 export default {
   props: {
       total: {
-         type: Object
+         type: Object,
+         default: function() {
+             return {};
+         }
       },
       tick: {},
       selectCurrent: {
-          type: Boolean
+         type: Boolean,
+          default: true
       },
     value: {
       validator: function (val) {
