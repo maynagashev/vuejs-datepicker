@@ -118,7 +118,13 @@ import DateLanguages from '@/utils/DateLanguages.js'
 
 export default {
   props: {
-      total: {
+      is_highlighted2: {
+          type: Function,
+          default: function() {
+              return false;
+          }
+      },
+      items: {
          type: Object,
          default: function() {
              return {};
@@ -127,7 +133,7 @@ export default {
       tick: {},
       selectCurrent: {
          type: Boolean,
-          default: true
+         default: true
       },
     value: {
       validator: function (val) {
@@ -201,11 +207,7 @@ export default {
       /*
        * Positioning
        */
-      calendarHeight: 0,
-      /**
-       * additinal data
-       */
-      pickerData: null
+      calendarHeight: 0
     }
   },
   watch: {
@@ -283,20 +285,20 @@ export default {
     days () {
       const d = this.pageDate
       let a = this.tick; // stub var for updating days() when tick updates
+      // request additional data load for month
+      this.$emit('render_days', {year: d.getFullYear(), month: d.getMonth()})
+      
       let days = []
       // set up a new date object to the beginning of the current 'page'
       let dObj = new Date(d.getFullYear(), d.getMonth(), 1, d.getHours(), d.getMinutes())
       let daysInMonth = DateUtils.daysInMonth(dObj.getFullYear(), dObj.getMonth())
-        // request additional data load for month
-        if (this.pickerData !== null) {
-           this.pickerData.fetchDataForMonth(d.getFullYear(), d.getMonth());
-        }
+
       for (let i = 0; i < daysInMonth; i++) {
 
         // additional data
           let dateISO = moment(dObj).format('YYYY-MM-DD')
-          let isHighlighted2 = (this.pickerData !== null) ? this.pickerData.fetchPurchasedForDate(dateISO) : false
-          let items = this.total.hasOwnProperty(dateISO) ? this.total[dateISO] : '-'
+          let isHighlighted2 = this.is_highlighted2(dateISO);
+          let items = this.items.hasOwnProperty(dateISO) ? this.items[dateISO] : '-'
           //items = (items <= 0) ? '-' : items
 
         days.push({
@@ -904,7 +906,6 @@ export default {
       }
     },
     init () {
-      this.pickerData = window.pickerData;
       var self =this;
 
       if (this.value) {
