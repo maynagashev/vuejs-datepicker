@@ -924,7 +924,7 @@ export default {
 
 <style lang="stylus">
 
-$width = 300px
+$width = 100%
 
 .rtl
     direction:rtl
@@ -939,6 +939,7 @@ $width = 300px
     z-index 100
     background white
     width $width
+    max-width 300px
     border 1px solid #ccc
     header
         display block
@@ -1012,6 +1013,8 @@ $width = 300px
                 background #4bd
             &.highlighted
                 background #4bd
+            &.highlighted2
+                background #93f593
             .info
                 color white
         &.highlighted
@@ -1019,7 +1022,7 @@ $width = 300px
             &.disabled
                 color: #a3a3a3
             &.highlighted2
-                background #b9d4dc
+                background #93f593
         &.highlighted2
             background #ddffdd
         &.disabled
