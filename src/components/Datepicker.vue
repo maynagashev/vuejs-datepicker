@@ -438,6 +438,8 @@ export default {
       this.close()
       this.showDayView = true
       this.addOutsideClickListener()
+      let d = new Date(this.currDate)
+      this.$emit('opened', d)
     },
     showMonthCalendar () {
       if (!this.allowedToShowView('month')) return false
